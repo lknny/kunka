@@ -12,35 +12,41 @@ public class Dispatcher implements Dispatch<Task> {
 	private LinkedBlockingQueue<Task> queue = new LinkedBlockingQueue<Task>();
 	private Thread dispatcher;
 	private String DispatcherName;
+	public String getDispatcherName() {
+		return DispatcherName;
+	}
+
 	private AtomicBoolean isShutdown = new AtomicBoolean(false);
 
 	public Dispatcher(String dispatcherName, final Executor<Task> executor) {
 		this.DispatcherName = dispatcherName;
 		this.dispatcher = new Thread(dispatcherName) {
 			public void run() {
-				Task task = getTask();
-				dispatch(executor, task);
+				while(!isShutdown.get()){
+					Task task = getTask();
+					dispatch(executor, task);
+				}
 			}
 
 		};
 		this.dispatcher.start();
 	}
 
-	private synchronized Task getTask() {
+	private Task getTask() {
+		Task task=null;
 		while (!isShutdown.get()) {
-			Task task = queue.poll();
+			try {
+				task = queue.poll(3,TimeUnit.SECONDS);
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 			if (task != null) {
 				return task;
 			}
-			try {
-				this.wait();
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-				shutdown();
-			}
+			continue;
 		}
-		return null;
+		return task;
 	}
 
 	@Override
@@ -50,10 +56,8 @@ public class Dispatcher implements Dispatch<Task> {
 	}
 
 	@Override
-	public synchronized void add(Task t) {
-			this.notifyAll();
+	public  void add(Task t) {
 		this.queue.add(t);
-		System.out.println("notify all...'");
 	}
 
 	@Override
