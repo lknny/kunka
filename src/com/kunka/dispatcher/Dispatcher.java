@@ -9,10 +9,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import com.kunka.Dispatch;
 import com.kunka.Executor;
 import com.kunka.Task;
+import com.kunka.task.TaskManager;
+import com.kunka.task.TaskStatus;
 
 public class Dispatcher implements Dispatch<Task> {
 	private LinkedBlockingQueue<Task> queue ;
 	private AtomicBoolean isShutdown = new AtomicBoolean(false);
+	private AtomicBoolean isFinished = new AtomicBoolean(false);
 	private Thread dispatcher;
 	private String DispatcherName;
 	private Executor<Task> executor;
@@ -42,6 +45,7 @@ public class Dispatcher implements Dispatch<Task> {
 					if (null==task) {
 						continue;
 					}
+					TaskManager.getInstance().update(new TaskStatus(task.getTaskId(), 20));
 					dispatch(executor, task);
 				}
 			}
@@ -90,5 +94,10 @@ public class Dispatcher implements Dispatch<Task> {
 		synchronized (this) {
 			executor.shutdown();
 		}
+	}
+	@Override
+	public void finish() {
+		isFinished.set(true);
+		
 	}
 }

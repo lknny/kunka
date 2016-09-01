@@ -12,8 +12,6 @@ public abstract class Task {
     private long taskId;
     private TimerTask timerTask=null;
 
-
-
     protected Task(String taskName) {
         this.taskName = taskName;
         init();
@@ -30,7 +28,7 @@ public abstract class Task {
 
     abstract public void timeOutAction();
     
-    abstract public void finishTask();
+    abstract public void finishTask(long taskid);
     
     abstract public void afterTask();
 
@@ -40,7 +38,7 @@ public abstract class Task {
                 public void run(){
                     try{
                         update(TaskStatus.S_TIMEOUT, 100,"timeout");
-                        finishTask();
+                        finishTask(taskId);
                         timeOutAction();
                         TaskManager.getInstance().removeTask(taskId);
                     }catch(Throwable e){

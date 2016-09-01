@@ -15,7 +15,7 @@ public class TaskManager {
     private static long globalTaskNo = Math.round(Math.random());
     private final static Map<Long, Task> runningTasks = new ConcurrentHashMap<Long, Task>();
     private final static Map<Long, List<TaskListener>> listeners = new ConcurrentHashMap<Long, List<TaskListener>>();
-    private Map<Long,TaskStatus> taskStatus = new ConcurrentHashMap<Long, TaskStatus>();
+    private final static Map<Long,TaskStatus> taskStatus = new ConcurrentHashMap<Long, TaskStatus>();
     
     public TaskStatus  getTaskStatus(long taskid) {
         return taskStatus.get(taskid);
@@ -41,9 +41,18 @@ public class TaskManager {
     
     public void addTask(Task task,Executor<Task> executor){
         Dispatch<Task> dispatch=new Dispatcher(executor);
+        addTask(task);
         dispatch.add(task);
     }
     
+    public void addTask(Task task,Executor<Task> executor,TaskListener[] listener){
+        Dispatch<Task> dispatch=new Dispatcher(executor);
+        addTask(task);
+        for (TaskListener taskListener : listener) {
+			registerListener(task.getTaskId(), taskListener);
+		}
+        dispatch.add(task);
+    }
     
     public void removeTask(Long taskid) {
         runningTasks.remove(taskid);
@@ -98,7 +107,7 @@ public class TaskManager {
         List<TaskListener> list = getListeners(status.getTaskId());
         for(TaskListener l:list){
             try {
-                l.onchange();
+                l.onchange(status);
             } catch (Throwable e) {
                 e.printStackTrace();
             }
@@ -117,7 +126,15 @@ public class TaskManager {
         return list;
     }
     
-
+public synchronized void interruptTask(Task task){
+	if (null!=runningTasks.get(String.valueOf(task.getTaskId()))) {
+		runningTasks.get(String.valueOf(task.getTaskId())).interrupt();
+	}
+	return;
+}
+    
+    
+    
     /**
      * 维护任务状态记录信息
      * 超过MAX_TASK_COUNT个任务时，删除已经完成的REMOVE_TASK_COUNT个任务
