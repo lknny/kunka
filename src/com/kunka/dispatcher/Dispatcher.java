@@ -7,38 +7,23 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.kunka.Dispatch;
-import com.kunka.Executor;
 import com.kunka.Task;
 import com.kunka.task.TaskManager;
 import com.kunka.task.TaskStatus;
 
-public class Dispatcher implements Dispatch<Task> {
+public abstract class Dispatcher implements Dispatch<Task> {
 	private LinkedBlockingQueue<Task> queue ;
 	private AtomicBoolean isShutdown = new AtomicBoolean(false);
-	private AtomicBoolean isFinished = new AtomicBoolean(false);
 	private Thread dispatcher;
-	private String DispatcherName;
-	private Executor<Task> executor;
+	private final static String DispatcherName="Task dispatcher thread";
 	
-	public String getDispatcherName() {
-		return DispatcherName;
-	}
-	public Dispatcher(final Executor<Task> executor){
-		init("Task dispatcher thread",executor, defaultAliveTime);
-	}
-
-	public Dispatcher(String dispatcherName, final Executor<Task> executor) {
-		init(dispatcherName, executor,defaultAliveTime);
-	}
-	public Dispatcher(String dispatcherName, final Executor<Task> executor, int keepAliveTime){
-		init(dispatcherName, executor, keepAliveTime);
+	public Dispatcher(int keepAliveTime,int capacity){
+		init( keepAliveTime,capacity);
 	}
 	
-	private void init(String dispatcherName, final Executor<Task> executor, int keepAliveTime) {
-		this.executor=executor;
-		this.DispatcherName = dispatcherName;
-		this.queue= new LinkedBlockingQueue<Task>(defaultCapacity);
-		this.dispatcher = new Thread(dispatcherName) {
+	private void init(int keepAliveTime,int capacity) {
+		this.queue= new LinkedBlockingQueue<Task>(capacity);
+		this.dispatcher = new Thread(DispatcherName) {
 			public void run() {
 				while(!isShutdown.get()){
 					Task task = getTask();
@@ -46,10 +31,9 @@ public class Dispatcher implements Dispatch<Task> {
 						continue;
 					}
 					TaskManager.getInstance().update(new TaskStatus(task.getTaskId(), 20));
-					dispatch(executor, task);
+					dispatch(task);
 				}
 			}
-
 		};
 		this.dispatcher.start();
 		new Timer().schedule(new TimerTask() {
@@ -57,7 +41,7 @@ public class Dispatcher implements Dispatch<Task> {
 			public void run() {
 				shutdown();
 			}
-		}, keepAliveTime);
+		}, keepAliveTime*1000);
 	}
 
 	private Task getTask() {
@@ -71,10 +55,7 @@ public class Dispatcher implements Dispatch<Task> {
 		return task;
 	}
 
-	@Override
-	public void dispatch(Executor<Task> executor, Task task) {
-		executor.execute(task);
-	}
+	public abstract void dispatch(Task task);
 
 	@Override
 	public  void add(Task t) {
@@ -91,13 +72,5 @@ public class Dispatcher implements Dispatch<Task> {
 	public void shutdown() {
 		this.isShutdown.set(true);
 		System.out.println(DispatcherName+" shut down.");
-		synchronized (this) {
-			executor.shutdown();
-		}
-	}
-	@Override
-	public void finish() {
-		isFinished.set(true);
-		
 	}
 }

@@ -1,19 +1,29 @@
 package com.kunka.executor;
 
-import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ConcurrentHashMap;
 
-import com.kunka.Executor;
 import com.kunka.Task;
 
-public class TimerExecutor implements Executor<Task> {
-    private Date date;
+/**
+ *  定时/延时执行器，到达指定时间后，所有任务并发执行。
+ *
+ */
+public class TimerExecutor extends TaskExecutor {
+    private long  delaySeconds;
     private Timer timer;
-    public TimerExecutor(Date date) {
-        this.date=date;
-       this. timer=new Timer();
+    public TimerExecutor(long delaySeconds) {
+    	super(defaultAliveTime, defaultCapacity);
+    	Init(delaySeconds);
+    }
+    public TimerExecutor(long delaySeconds,int keepAliveTime,int capacity){
+    	super(keepAliveTime, capacity);
+    	Init(delaySeconds);
+    }
+    
+    private void Init(long delaySeconds){
+    	this.delaySeconds=delaySeconds;
+    	this.timer=new Timer(false);
     }
     
     @Override
@@ -26,12 +36,15 @@ public class TimerExecutor implements Executor<Task> {
             @Override
             public void run() {
             	task.runTask();
+            	finished(task);
             }
-        }, date);
+        }, delaySeconds*1000);
     }
-
-    @Override
-    public synchronized void shutdown() {
-    	timer.cancel();
-    }
+    
+	@Override
+	public synchronized void close() {
+		super.close();
+		timer.cancel();
+		System.out.println("TimerExecutor shut down.");
+	}
 }

@@ -1,8 +1,7 @@
 package com.kunka;
 
-import com.kunka.dispatcher.Dispatcher;
-import com.kunka.executor.ParallelExecutor;
-import com.kunka.executor.SerialExecutor;
+import com.kunka.executor.ConcurrentExecutor;
+import com.kunka.executor.TimerExecutor;
 import com.kunka.task.TaskListener;
 import com.kunka.task.TaskManager;
 import com.kunka.task.TaskStatus;
@@ -15,8 +14,9 @@ public class Test extends Task {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		// Executor<Task> executor=new ParallelExecutor(5,"pThread");
-		final Executor<Task> executor = new SerialExecutor();
+		 final Executor<Task> executor=new ConcurrentExecutor(5);
+//		 final Executor<Task> executor=new TimerExecutor(3);
+//		final Executor<Task> executor = new SerialExecutor();
 		final TaskListener listener=new TaskListener() {
 			@Override
 			public void onchange(TaskStatus taskStatus) {
@@ -56,7 +56,7 @@ public class Test extends Task {
 	@Override
 	public void runTask() {
 		// TODO Auto-generated method stub
-		System.out.println("task:---------" + this.getTaskId());
+		System.out.println("Task: " + this.getTaskId()+" is running.");
 	}
 
 	@Override
@@ -65,13 +65,8 @@ public class Test extends Task {
 	}
 
 	@Override
-	public void finishTask(long id) {
-		TaskManager.getInstance().update(new TaskStatus(id, 100));
-
+	public void taskFinished() {
+		System.out.println("Task : "+getTaskId()+" is finished.");
 	}
 
-	@Override
-	public void afterTask() {
-
-	}
 }

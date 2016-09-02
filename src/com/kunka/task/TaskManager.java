@@ -6,13 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.kunka.Dispatch;
 import com.kunka.Executor;
 import com.kunka.Task;
-import com.kunka.dispatcher.Dispatcher;
 
 public class TaskManager {
-    private static long globalTaskNo = Math.round(Math.random());
+    private static long globalTaskNo =0;
     private final static Map<Long, Task> runningTasks = new ConcurrentHashMap<Long, Task>();
     private final static Map<Long, List<TaskListener>> listeners = new ConcurrentHashMap<Long, List<TaskListener>>();
     private final static Map<Long,TaskStatus> taskStatus = new ConcurrentHashMap<Long, TaskStatus>();
@@ -40,18 +38,16 @@ public class TaskManager {
     }
     
     public void addTask(Task task,Executor<Task> executor){
-        Dispatch<Task> dispatch=new Dispatcher(executor);
+    	executor.add(task);
         addTask(task);
-        dispatch.add(task);
     }
     
     public void addTask(Task task,Executor<Task> executor,TaskListener[] listener){
-        Dispatch<Task> dispatch=new Dispatcher(executor);
+    	executor.add(task);
         addTask(task);
         for (TaskListener taskListener : listener) {
 			registerListener(task.getTaskId(), taskListener);
 		}
-        dispatch.add(task);
     }
     
     public void removeTask(Long taskid) {

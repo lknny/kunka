@@ -28,17 +28,15 @@ public abstract class Task {
 
     abstract public void timeOutAction();
     
-    abstract public void finishTask(long taskid);
+    abstract public void taskFinished();
     
-    abstract public void afterTask();
-
 
     public void createTimerTask(){
            this.timerTask = new TimerTask(){
                 public void run(){
                     try{
                         update(TaskStatus.S_TIMEOUT, 100,"timeout");
-                        finishTask(taskId);
+                        taskFinished();
                         timeOutAction();
                         TaskManager.getInstance().removeTask(taskId);
                     }catch(Throwable e){
