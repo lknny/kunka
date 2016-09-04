@@ -8,7 +8,7 @@ import com.kunka.task.TaskStatus;
  * @author toto
  *	串行执行器，所有任务串行执行
  */
-public class SingleExecutor extends TaskExecutor {
+public class SingleExecutor extends TaskExecutor<Task> {
 
 	public SingleExecutor() {
 		super(defaultAliveTime,defaultCapacity);
@@ -19,12 +19,13 @@ public class SingleExecutor extends TaskExecutor {
 
 	@Override
 	public synchronized void execute(Task task) {
-		if (task.isInterrupted()) {
-			System.out.println("Task is interrupted,ID: " + task.getTaskId());
-			return;
-		}
 		TaskManager.getInstance().update(new TaskStatus(task.getTaskId(), 50));
 		task.runTask();
 		finished(task);
+	}
+	@Override
+	protected void closeExecutor() {
+		// TODO Auto-generated method stub
+		
 	}
 }

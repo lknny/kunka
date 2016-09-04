@@ -13,7 +13,7 @@ import com.kunka.task.TaskStatus;
  * @author toto
  *并行执行器，指定并行数，然后按照指定并行数，并发执行
  */
-public class ConcurrentExecutor extends TaskExecutor {
+public class ConcurrentExecutor extends TaskExecutor <Task>{
 
 	private ExecutorService threadPool;
 	private final static String ConcurrentExecutor="Concurrent Executor";
@@ -45,10 +45,8 @@ public class ConcurrentExecutor extends TaskExecutor {
 			}
 		});
 	}
-
 	@Override
-	public synchronized void close() {
-		super.close();
+	protected void closeExecutor() {
 		threadPool.shutdown();
 		System.out.println(ConcurrentExecutor+" shut down.");
 	}

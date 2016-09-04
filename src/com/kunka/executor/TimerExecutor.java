@@ -9,7 +9,7 @@ import com.kunka.Task;
  *  定时/延时执行器，到达指定时间后，所有任务并发执行。
  *
  */
-public class TimerExecutor extends TaskExecutor {
+public class TimerExecutor extends TaskExecutor<Task> {
     private long  delaySeconds;
     private Timer timer;
     public TimerExecutor(long delaySeconds) {
@@ -23,15 +23,11 @@ public class TimerExecutor extends TaskExecutor {
     
     private void Init(long delaySeconds){
     	this.delaySeconds=delaySeconds;
-    	this.timer=new Timer(false);
+    	this.timer=new Timer();
     }
     
     @Override
     public void execute( final Task task) {
-    	if (task.isInterrupted()) {
-    		System.out.println("Task is interrupted,ID: "+task.getTaskId());
-			return;
-		}
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
@@ -40,10 +36,9 @@ public class TimerExecutor extends TaskExecutor {
             }
         }, delaySeconds*1000);
     }
-    
 	@Override
-	public synchronized void close() {
-		super.close();
+	protected void closeExecutor() {
+		// TODO Auto-generated method stub
 		timer.cancel();
 		System.out.println("TimerExecutor shut down.");
 	}

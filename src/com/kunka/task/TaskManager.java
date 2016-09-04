@@ -37,12 +37,12 @@ public class TaskManager {
         addTaskStatus(new TaskStatus(task.getTaskId(), TaskStatus.S_READY));
     }
     
-    public void addTask(Task task,Executor<Task> executor){
+    public void addTask(Task task,Executor executor){
     	executor.add(task);
         addTask(task);
     }
     
-    public void addTask(Task task,Executor<Task> executor,TaskListener[] listener){
+    public void addTask(Task task,Executor executor,TaskListener[] listener){
     	executor.add(task);
         addTask(task);
         for (TaskListener taskListener : listener) {
