@@ -76,6 +76,9 @@ public abstract class Task {
         return isInterrupted.get();
     }
 
+    /**
+     *  尝试中断任务，任务开始执行后，中断会失败
+     */
     public void interrupt() {
         isInterrupted.set(true);
     }

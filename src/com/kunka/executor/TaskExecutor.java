@@ -20,7 +20,7 @@ public abstract  class TaskExecutor<T extends Task> implements Executor<T>{
          @Override
          public void dispatch(T task) {
              if (task.isInterrupted()) {
-                 System.out.println("Task is interrupted,ID: "+task.getTaskId());
+                 System.out.println("Task is interrupted by dispatcher,ID: "+task.getTaskId());
                  return;
              }
              execute(task);
@@ -41,7 +41,6 @@ public abstract  class TaskExecutor<T extends Task> implements Executor<T>{
 	@Override
 	public void remove(T t) {
 		dispatcher.remove(t);
-		
 	}
 	
 protected abstract void  closeExecutor() ;

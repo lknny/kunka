@@ -33,8 +33,9 @@ public class ConcurrentExecutor extends TaskExecutor <Task>{
 	}
 
 	@Override
-	public void execute(final Task task) {
+	public void execute( final Task task) {
 		if (task.isInterrupted()) {
+			System.out.println("Task is interrupted by executor,ID: "+task.getTaskId());
 			return;
 		}
 		TaskManager.getInstance().update(new TaskStatus(task.getTaskId(), 50));

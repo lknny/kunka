@@ -123,8 +123,8 @@ public class TaskManager {
     }
     
 public synchronized void interruptTask(Task task){
-	if (null!=runningTasks.get(String.valueOf(task.getTaskId()))) {
-		runningTasks.get(String.valueOf(task.getTaskId())).interrupt();
+	if (null!=runningTasks.get(Long.valueOf(task.getTaskId()))) {
+		runningTasks.get(Long.valueOf(task.getTaskId())).interrupt();
 	}
 	return;
 }

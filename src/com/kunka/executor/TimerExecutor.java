@@ -28,6 +28,10 @@ public class TimerExecutor extends TaskExecutor<Task> {
     
     @Override
     public void execute( final Task task) {
+    	  if (task.isInterrupted()) {
+              System.out.println("Task is interrupted,ID: "+task.getTaskId());
+              return;
+          }
         timer.schedule(new TimerTask() {
             @Override
             public void run() {

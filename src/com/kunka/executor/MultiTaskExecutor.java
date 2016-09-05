@@ -44,7 +44,10 @@ public class MultiTaskExecutor extends TaskExecutor<MultiTask> {
 
 	@Override
 	public void execute(final MultiTask multiTask) {
-
+		if (multiTask.isInterrupted()) {
+			System.out.println("Task is interrupted,ID: "+multiTask.getTaskId());
+			return;
+		}
 		multiTask.runTask();
 		TaskManager.getInstance().update(new TaskStatus(multiTask.getTaskId(), 50));
 
