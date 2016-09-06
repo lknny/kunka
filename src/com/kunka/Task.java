@@ -24,13 +24,6 @@ public abstract class Task {
         this.taskId = TaskManager.applyTaskId();
     }
 
-    abstract public void runTask();
-
-    abstract public void timeOutAction();
-    
-    abstract public void taskFinished();
-    
-
     public void createTimerTask(){
            this.timerTask = new TimerTask(){
                 public void run(){
@@ -87,4 +80,19 @@ public abstract class Task {
         return taskId;
     }
 
+    
+    /**
+     * 	任务执行内容
+     */
+    abstract public void runTask();
+
+    /**
+     *  任务超时处理
+     */
+    abstract public void timeOutAction();
+    
+    /**
+     *  任务结束时，后置处理
+     */
+    abstract public void taskFinished();
 }
